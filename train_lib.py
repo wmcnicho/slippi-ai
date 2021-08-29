@@ -70,19 +70,23 @@ class PlateauDetector:
       check_interval=10,
       threshold=1e-4,
       ema_window=100,
+      enable=False,
   )
 
-  def __init__(self, check_interval: int, threshold: float, ema_window: int):
+  def __init__(self, check_interval: int, threshold: float, ema_window: int, enable: bool):
     self.check_interval = check_interval
     self.threshold = threshold
     self.steps = 0
     self.last_ema = None
     self.ema = utils.EMA(ema_window)
+    self.enable = enable
   
   def update(self, loss: float):
     self.ema.update(loss)
 
   def check(self) -> bool:
+    if not self.enable:
+      return False
     if self.last_ema is None:
       self.last_ema = self.ema.value
       return False
