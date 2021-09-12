@@ -220,6 +220,17 @@ def main(dataset, expt_dir, num_epochs, epoch_time, save_interval, _config, _log
     ckpt.step.assign_add(steps)
     total_steps = ckpt.step.numpy()
 
+    # decrease learning rate on plateau
+    # if plateau_detector.check():
+    #   new_lr = .5 * learning_rate.numpy()
+    #   _log.info('Plateau detected, reducing learning rate to %.1e', new_lr)
+    #   learning_rate.assign(new_lr)
+    new_lr = learning_rate.numpy() + 0.000001
+    _log.info('1 Epoch complete, increasing learning rate to %.1e', new_lr)
+    learning_rate.assign(new_lr)
+
+    
+
     # now test
     test_stats = test_manager.step()
 
