@@ -225,7 +225,7 @@ def main(dataset, expt_dir, num_epochs, epoch_time, save_interval, _config, _log
     #   new_lr = .5 * learning_rate.numpy()
     #   _log.info('Plateau detected, reducing learning rate to %.1e', new_lr)
     #   learning_rate.assign(new_lr)
-    new_lr = learning_rate.numpy() + 0.000001
+    new_lr = learning_rate.numpy() + 0.00001
     _log.info('1 Epoch complete, increasing learning rate to %.1e', new_lr)
     learning_rate.assign(new_lr)
 
