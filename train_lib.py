@@ -11,6 +11,7 @@ import tree
 import data
 from learner import Learner
 import utils
+from typing import Union
 
 def get_experiment_tag():
   today = datetime.date.today()
@@ -74,3 +75,34 @@ def log_stats(ex, stats, step=None, sep='.'):
     key = sep.join(map(str, path))
     ex.log_scalar(key, value, step=step)
   tree.map_structure_with_path(log, stats)
+
+class LearningRateCycler:
+  """
+  Implementaion of 'triangular' cyclical learning rate policy defined in
+  https://arxiv.org/pdf/1506.01186.pdf
+  """
+  DEFAULT_CONFIG = dict(
+    base_lr=0.00005,
+    max_lr=0.0005,
+    step_size=2000,
+    disable=False,
+  )
+
+  def __init__(self, base_lr:float, max_lr:float, step_size:float, disable:bool):
+    self.base_lr = base_lr
+    self.max_lr = max_lr
+    self.step_size = step_size
+    self.disable = disable
+      
+  def get_rate(self, total_iter_count) -> Union[float, None]:
+    """ 
+      Returns the updated learning rate given the total number of iterations and
+      position in the triangular cycle.
+      if disabled will return None
+    """
+    if self.disable:
+      return None
+    cycle = np.floor(1+total_iter_count/(2*self.step_size))
+    x = np.abs(total_iter_count/self.step_size - 2*cycle + 1)
+    lr = self.base_lr + (self.max_lr-self.base_lr)*np.maximum(0, (1-x))
+    return lr

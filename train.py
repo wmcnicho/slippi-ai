@@ -204,6 +204,8 @@ def main(dataset, expt_dir, num_epochs, epoch_time, save_interval, _config, _log
     save_model = utils.Periodically(save_model, save_interval)
 
   total_steps = 0
+  frames_per_batch = train_data.batch_size * train_data.unroll_length
+  learning_rate_cycler = train_lib.LearningRateCycler(**_config['learner']['learning_rate_cycler'])
 
   for _ in range(num_epochs):
     start_time = time.perf_counter()
@@ -220,16 +222,10 @@ def main(dataset, expt_dir, num_epochs, epoch_time, save_interval, _config, _log
     ckpt.step.assign_add(steps)
     total_steps = ckpt.step.numpy()
 
-    # decrease learning rate on plateau
-    # if plateau_detector.check():
-    #   new_lr = .5 * learning_rate.numpy()
-    #   _log.info('Plateau detected, reducing learning rate to %.1e', new_lr)
-    #   learning_rate.assign(new_lr)
-    new_lr = learning_rate.numpy() + 0.00001
-    _log.info('1 Epoch complete, increasing learning rate to %.1e', new_lr)
-    learning_rate.assign(new_lr)
-
-    
+    new_lr = learning_rate_cycler.get_rate(total_steps)
+    if new_lr != None:
+      _log.info('Updating learning rate to %.5e', new_lr)
+      learning_rate.assign(new_lr)
 
     # now test
     test_stats = test_manager.step()
