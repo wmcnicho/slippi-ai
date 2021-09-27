@@ -1,4 +1,3 @@
-from train_lib import LearningRateCycler
 import sonnet as snt
 import tensorflow as tf
 
@@ -16,8 +15,12 @@ class Learner:
   DEFAULT_CONFIG = dict(
       learning_rate=1e-4,
       compile=True,
-      learning_rate_cycler=LearningRateCycler.DEFAULT_CONFIG
-  )
+      learning_rate_cycler=dict(
+        base_lr=0.00005,
+        max_lr=0.0005,
+        step_size=2000,
+        disable=False),
+    )
 
   def __init__(self,
       learning_rate: float,
