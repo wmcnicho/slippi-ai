@@ -222,10 +222,10 @@ def main(dataset, expt_dir, num_epochs, epoch_time, save_interval, _config, _log
     ckpt.step.assign_add(steps)
     total_steps = ckpt.step.numpy()
 
-    new_lr = learning_rate_cycler.get_rate(total_steps)
-    if new_lr != None:
-      _log.info('Updating learning rate to %.5e', new_lr)
-      learning_rate.assign(new_lr)
+    # new_lr = learning_rate_cycler.get_rate(total_steps)
+    # if new_lr != None:
+    #   _log.info('Updating learning rate to %.5e', new_lr)
+    #   learning_rate.assign(new_lr)
 
     # now test
     test_stats = test_manager.step()
@@ -233,6 +233,11 @@ def main(dataset, expt_dir, num_epochs, epoch_time, save_interval, _config, _log
     train_loss = train_stats['loss'].numpy()
     test_loss = test_stats['loss'].numpy()
     epoch = train_stats['epoch']
+
+    new_lr = learning_rate_cycler.get_rate_form_epoch_ratio(epoch)
+    if new_lr != None:
+      _log.info('Updating learning rate to %.5e', new_lr)
+      learning_rate.assign(new_lr)
 
     all_stats = dict(
         train=train_stats,

@@ -106,3 +106,14 @@ class LearningRateCycler:
     x = np.abs(total_iter_count/self.step_size - 2*cycle + 1)
     lr = self.base_lr + (self.max_lr-self.base_lr)*np.maximum(0, (1-x))
     return lr
+
+  def get_rate_form_epoch_ratio(self, epoch:float) -> Union[float, None]:
+    """
+      Given the ratio of completed epoch, returns the updated learning rate in a triangular cycle.
+      if disabled will return None
+    """
+    if self.disable:
+      return None
+    x = np.abs(1 - (epoch % 6) / 3) # This 6 could be parametarized
+    lr = x * self.base_lr + (1 - x) * self.max_lr
+    return lr
